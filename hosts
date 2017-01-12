@@ -1,0 +1,14 @@
+[webprodservers]
+ditelk[1:2]
+
+[webtestservers]
+ditelk[3:4]
+
+[dbservers]
+db_ditelk
+
+# All servers regrouped in all group
+[all:children]
+webprodservers
+webtestservers
+dbservers

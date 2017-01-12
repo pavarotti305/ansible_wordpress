@@ -1,0 +1,23 @@
+---
+# tasks file for phpmyadmin
+    - name: Install PHPMYADMIN.
+      apt: name={{ item }} state=latest update_cache=yes cache_valid_time=3600
+      become: yes
+      when: ansible_os_family == 'Debian'
+      with_items:
+        - phpmyadmin
+      notify:
+        - restart apache2
+
+    - name: Copy apach2 conf file.
+      copy:
+        src: "{{ item.src }}"
+        dest: "{{ item.dest }}"
+        owner: root
+        group: root
+        mode: 0644
+      become: yes
+      with_items:
+        - { src: 'files/apache2.conf', dest: '/etc/apache2/apache2.conf' }
+      notify:
+        - restart apache2

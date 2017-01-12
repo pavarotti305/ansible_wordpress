@@ -1,0 +1,68 @@
+---
+# tasks file for apache
+  - name: Install MySQL
+    apt: name={{ item }} state=latest force=yes update_cache=yes cache_valid_time=3600
+    become: yes
+    when: ansible_os_family == 'Debian'
+    with_items:
+      - mysql-server
+      - mysql-client
+      - python-mysqldb
+
+  - name: update mysql root password for all root accounts
+    mysql_user:
+     user="root"
+     password="{{ MySQL_root_pass }}"
+     host_all=yes
+     login_password="{{ MySQL_root_pass }}"
+     login_user=root
+     check_implicit_admin=yes
+     priv="*.*:ALL,GRANT"
+
+  - name: Deletes anonymous MySQL server user for localhost
+    mysql_user:
+     user=""
+     host_all=yes
+     state=absent
+     login_password={{ MySQL_root_pass }}
+     login_user=root
+
+  - name: Secures the MySQL root user
+    mysql_user:
+     user="root"
+     password={{ MySQL_root_pass }}
+     host_all=yes
+     login_password={{ MySQL_root_pass }}
+     login_user=root
+
+  - name: Removes the MySQL test database
+    mysql_db:
+     db=test
+     state=absent
+     login_password={{ MySQL_root_pass }}
+     login_user=root
+    notify:
+      - restart MySQL
+
+  - name: Create mysql database for wordpress
+    mysql_db:
+     name={{ wp_mysql_db }}
+     state=present
+     login_password={{ MySQL_root_pass }}
+     login_user=root
+
+  - name: Create mysql user
+    mysql_user:
+      name={{ wp_mysql_user }}
+      password={{ MySQL_root_pass }}
+      priv=*.*:ALL
+      login_password={{ MySQL_root_pass }}
+      login_user=root
+    notify:
+      - restart MySQL
+
+  - name: Start the service at boot
+    service: name={{ item }} state=started enabled=yes
+    become: yes
+    with_items:
+      - mysql

@@ -1,0 +1,82 @@
+---
+  - name: Update all packages to the latest version
+    apt:
+     upgrade: dist
+    become: yes
+
+  - name: Install Apache
+    apt:
+      name: apache2
+      state: latest
+      update_cache: yes
+    become: yes
+
+  - name: enabled mod_rewrite
+    apache2_module: name=rewrite state=present
+    become: yes
+    notify:
+      - restart apache2
+
+  - name: Create the directory structure for site.
+    file: path=/var/www/{{ item.0 }}/{{ item.1 }}/{{ item.2 }} owner=root group=root mode=0755 recurse=yes state=directory
+    become: yes
+    with_nested:
+      - ['html']
+      - ['d.ditelkin.com', 'd1.ditelkin.com', 'd2.ditelkin.com', 'd3.ditelkin.com']
+      - ['public_html', 'logs']
+
+  - name: Copy demo pages for virtual host.
+    copy:
+      src: "{{ item.src }}"
+      dest: "{{ item.dest }}"
+      owner: root
+      group: root
+      mode: 0644
+    become: yes
+    with_items:
+      - { src: "roles/apache/templates/index.html", dest: "/var/www/html/d.ditelkin.com/public_html/index.html" }
+      - { src: "roles/apache/templates/index1.html", dest: "/var/www/html/d1.ditelkin.com/public_html/index.html" }
+      - { src: "roles/apache/templates/index2.html", dest: "/var/www/html/d2.ditelkin.com/public_html/index.html" }
+    notify:
+      - restart apache2
+
+  - name: Copy Virtual Host file.
+    copy:
+      src: "{{ item.src }}"
+      dest: "{{ item.dest }}"
+      owner: root
+      group: root
+      mode: 0644
+    become: yes
+    with_items:
+      - { src: 'files/ditelkin.conf', dest: '/etc/apache2/sites-available/ditelkin.conf' }
+      - { src: 'files/ditelkin1.conf', dest: '/etc/apache2/sites-available/ditelkin1.conf' }
+      - { src: 'files/ditelkin2.conf', dest: '/etc/apache2/sites-available/ditelkin2.conf' }
+      - { src: 'files/ditelkin3.conf', dest: '/etc/apache2/sites-available/ditelkin3.conf' }
+    notify:
+      - restart apache2
+
+  - name: a2dissite default site
+    command: a2dissite {{ item }}
+    become: yes
+    with_items:
+      - 000-default.conf
+
+  - name: a2ensite our sites
+    command: a2ensite {{ item }}
+    become: yes
+    args:
+      creates: /etc/apache2/sites-enabled/{{ item }}
+    with_items:
+      - ditelkin.conf
+      - ditelkin1.conf
+      - ditelkin2.conf
+      - ditelkin3.conf
+    notify:
+      - restart apache2
+
+  - name: Start the service at boot
+    service: name={{ item }} state=started enabled=yes
+    become: yes
+    with_items:
+      - apache2

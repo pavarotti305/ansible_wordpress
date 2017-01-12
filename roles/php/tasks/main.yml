@@ -1,0 +1,15 @@
+---
+# tasks file for php
+    - name: Install PHP.
+      apt: name={{ item }} state=latest update_cache=yes cache_valid_time=3600
+      become: yes
+      when: ansible_os_family == 'Debian'
+      with_items:
+        - php5
+        - php5-mysql
+        - php5-curl
+        - php5-gd
+        - libssh2-php
+        - libapache2-mod-php5
+      notify:
+        - restart apache
