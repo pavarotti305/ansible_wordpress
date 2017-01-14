@@ -2,4 +2,4 @@
 # defaults file for mysql
 MySQL_root_pass: Materobi1*
 wp_mysql_db: wpdatabase
-wp_mysql_user: wpuser
+wp_mysql_user: lntumba

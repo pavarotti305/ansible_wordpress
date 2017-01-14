@@ -22,23 +22,8 @@
     become: yes
     with_nested:
       - ['html']
-      - ['d.ditelkin.com', 'd1.ditelkin.com', 'd2.ditelkin.com', 'd3.ditelkin.com']
+      - ['ditelkin.com']
       - ['public_html', 'logs']
-
-  - name: Copy demo pages for virtual host.
-    copy:
-      src: "{{ item.src }}"
-      dest: "{{ item.dest }}"
-      owner: root
-      group: root
-      mode: 0644
-    become: yes
-    with_items:
-      - { src: "roles/apache/templates/index.html", dest: "/var/www/html/d.ditelkin.com/public_html/index.html" }
-      - { src: "roles/apache/templates/index1.html", dest: "/var/www/html/d1.ditelkin.com/public_html/index.html" }
-      - { src: "roles/apache/templates/index2.html", dest: "/var/www/html/d2.ditelkin.com/public_html/index.html" }
-    notify:
-      - restart apache2
 
   - name: Copy Virtual Host file.
     copy:
@@ -50,9 +35,6 @@
     become: yes
     with_items:
       - { src: 'files/ditelkin.conf', dest: '/etc/apache2/sites-available/ditelkin.conf' }
-      - { src: 'files/ditelkin1.conf', dest: '/etc/apache2/sites-available/ditelkin1.conf' }
-      - { src: 'files/ditelkin2.conf', dest: '/etc/apache2/sites-available/ditelkin2.conf' }
-      - { src: 'files/ditelkin3.conf', dest: '/etc/apache2/sites-available/ditelkin3.conf' }
     notify:
       - restart apache2
 
@@ -69,9 +51,6 @@
       creates: /etc/apache2/sites-enabled/{{ item }}
     with_items:
       - ditelkin.conf
-      - ditelkin1.conf
-      - ditelkin2.conf
-      - ditelkin3.conf
     notify:
       - restart apache2
 

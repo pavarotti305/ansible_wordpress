@@ -61,6 +61,19 @@
     notify:
       - restart MySQL
 
+  - name: Copy database file for phpmyadmin
+    copy:
+      src: files/create_tables.sql
+      dest: /tmp
+
+  - name: Restore database
+    mysql_db:
+      name=phpmyadmin
+      state=import
+      target=/tmp/create_tables.sql
+      login_password={{ MySQL_root_pass }}
+      login_user=root
+
   - name: Start the service at boot
     service: name={{ item }} state=started enabled=yes
     become: yes
