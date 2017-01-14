@@ -19,7 +19,6 @@
 
   - name: Create the directory structure for site.
     file: path=/var/www/{{ item.0 }}/{{ item.1 }}/{{ item.2 }} owner=root group=root mode=0755 recurse=yes state=directory
-    become: yes
     with_nested:
       - ['html']
       - ['ditelkin.com']
@@ -32,7 +31,6 @@
       owner: root
       group: root
       mode: 0644
-    become: yes
     with_items:
       - { src: 'files/ditelkin.conf', dest: '/etc/apache2/sites-available/ditelkin.conf' }
     notify:
@@ -40,13 +38,11 @@
 
   - name: a2dissite default site
     command: a2dissite {{ item }}
-    become: yes
     with_items:
       - 000-default.conf
 
   - name: a2ensite our sites
     command: a2ensite {{ item }}
-    become: yes
     args:
       creates: /etc/apache2/sites-enabled/{{ item }}
     with_items:
@@ -56,6 +52,5 @@
 
   - name: Start the service at boot
     service: name={{ item }} state=started enabled=yes
-    become: yes
     with_items:
       - apache2

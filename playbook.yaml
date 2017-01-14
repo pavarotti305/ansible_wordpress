@@ -1,4 +1,5 @@
 - hosts: ditelk3
+  become: true
 
   roles:
     - mysql

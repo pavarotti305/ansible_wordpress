@@ -2,7 +2,6 @@
 # tasks file for apache
   - name: Install MySQL
     apt: name={{ item }} state=latest force=yes update_cache=yes cache_valid_time=3600
-    become: yes
     when: ansible_os_family == 'Debian'
     with_items:
       - mysql-server
@@ -76,6 +75,5 @@
 
   - name: Start the service at boot
     service: name={{ item }} state=started enabled=yes
-    become: yes
     with_items:
       - mysql

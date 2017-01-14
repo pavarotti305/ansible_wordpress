@@ -2,4 +2,3 @@
 # handlers file for phpmyadmin
     - name: restart apache2
       service: name=apache2 state=restarted
-      become: yes
