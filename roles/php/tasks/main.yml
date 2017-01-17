@@ -1,8 +1,7 @@
 ---
 # tasks file for php
-    - name: Install PHP.
-      apt: name={{ item }} state=latest update_cache=yes cache_valid_time=3600
-      when: ansible_os_family == 'Debian'
+    - name: Remove php5
+      apt: name={{ item }} state=absent update_cache=yes cache_valid_time=3600 autoremove=yes
       with_items:
         - php5
         - php5-mysql
@@ -12,3 +11,38 @@
         - libapache2-mod-php5
       notify:
         - restart apache
+
+    - name: Add the dotdeb PHP7 repo
+      apt_repository:
+         repo: deb http://packages.dotdeb.org jessie all
+         state: present
+
+    - name: Add the dotdeb PHP7 repo
+      apt_repository:
+         repo: deb http://packages.dotdeb.org jessie all
+         state: present
+
+    - name: Import dotdeb php7 pubkeey.
+      apt_key:
+         url: "https://www.dotdeb.org/dotdeb.gpg"
+         state: present
+
+    - name: Update the apt cache
+      apt: update_cache=yes cache_valid_time=3600
+
+    - name: Install PHP
+      apt: name=php7.0 state=installed force=yes
+      notify:
+        - restart apache
+
+    - name: copy php config
+      copy:
+        src: "{{ item.src }}"
+        dest: "{{ item.dest }}"
+        owner: root
+        group: root
+        mode: 0644
+      with_items:
+        - { src: 'files/php.ini', dest: '/etc/php/7.0/apache2/php.ini' }
+      notify:
+        - restart apache2

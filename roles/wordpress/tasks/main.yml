@@ -17,3 +17,14 @@
         - { src: "files/wp-config.php", dest: "/var/www/html/ditelkin.com/public_html/wordpress/wp-config.php" }
       notify:
         restart apache
+
+    - name: Make my wordpress content directory tree readable
+      file:
+        path: "/var/www/html/ditelkin.com/public_html/wordpress/"
+        owner: www-data
+        group: www-data
+        mode: 0755
+        recurse: yes
+        state: directory
+      notify:
+        restart apache

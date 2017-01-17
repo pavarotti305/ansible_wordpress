@@ -2,23 +2,20 @@
   - name: Update all packages to the latest version
     apt:
      upgrade: dist
-    become: yes
 
   - name: Install Apache
     apt:
       name: apache2
       state: latest
       update_cache: yes
-    become: yes
 
   - name: enabled mod_rewrite
     apache2_module: name=rewrite state=present
-    become: yes
     notify:
       - restart apache2
 
   - name: Create the directory structure for site.
-    file: path=/var/www/{{ item.0 }}/{{ item.1 }}/{{ item.2 }} owner=root group=root mode=0755 recurse=yes state=directory
+    file: path=/var/www/{{ item.0 }}/{{ item.1 }}/{{ item.2 }} owner=www-data group=www-data mode=0755 recurse=yes state=directory
     with_nested:
       - ['html']
       - ['ditelkin.com']
