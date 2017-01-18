@@ -1,17 +1,5 @@
 ---
 # tasks file for php
-    - name: Remove php5
-      apt: name={{ item }} state=absent update_cache=yes cache_valid_time=3600 autoremove=yes
-      with_items:
-        - php5-cli
-        - php5-common
-        - php5-json
-        - php5-mcrypt
-        - php5-mysql
-        - php5-readline
-      notify:
-        - restart apache
-
     - name: Add the dotdeb PHP7 repo
       apt_repository:
          repo: deb http://packages.dotdeb.org jessie all
@@ -30,7 +18,7 @@
     - name: Update the apt cache
       apt: update_cache=yes cache_valid_time=3600
 
-    - name: Install PHP
+    - name: Install PHP7.0
       apt: name={{ item }} state=installed force=yes
       with_items:
         - php7.0
@@ -38,6 +26,18 @@
         - php7.0-curl
         - php7.0-gd
         - php7.0-xml
+      notify:
+        - restart apache
+
+    - name: Remove php5
+      apt: name={{ item }} update_cache=yes cache_valid_time=3600 state=absent autoremove=yes purge=yes
+      with_items:
+        - php5-cli
+        - php5-common
+        - php5-json
+        - php5-mcrypt
+        - php5-mysql
+        - php5-readline
       notify:
         - restart apache
 
